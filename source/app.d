@@ -21,7 +21,7 @@ __gshared static this()
  */
 void websocketHandler(scope WebSocket socket)
 {
-	logger.print("Handling web socket: "~to!(string)(socket),DebugType.INFO);
+	logger.print("Handling web socket: "~to!(string)(socket)~"\n",DebugType.INFO);
 
 	string receivedText = socket.receiveText();
 	logger.print(receivedText~"\n", DebugType.INFO);
@@ -30,7 +30,7 @@ void websocketHandler(scope WebSocket socket)
 	JSONValue jsonReceived;
 	jsonReceived = parseJSON(receivedText);
 
-	logger.print(jsonReceived.toPrettyString(), DebugType.INFO);
+	logger.print(jsonReceived.toPrettyString()~"\n", DebugType.INFO);
 }
 
 void main()
