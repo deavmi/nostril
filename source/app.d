@@ -22,6 +22,9 @@ __gshared static this()
 void websocketHandler(scope WebSocket socket)
 {
 	logger.print("Handling web socket: "~to!(string)(socket)~"\n",DebugType.INFO);
+	
+	HTTPServerRequest httpRequest = cast(HTTPServerRequest)socket.request();
+	logger.print("New connection from: "~to!(string)(httpRequest.peer)~"\n",DebugType.INFO);
 
 	string receivedText = socket.receiveText();
 	logger.print(receivedText~"\n", DebugType.INFO);
