@@ -1,0 +1,13 @@
+{
+	"authors": [
+		"Tristan B. Velloza Kildaire"
+	],
+	"copyright": "Copyright © 2023, Tristan B. Velloza Kildaire",
+	"dependencies": {
+		"dlog": "~>0.0.6",
+		"vibe-d": "~>0.9.5"
+	},
+	"description": "A minimal D application.",
+	"license": "proprietary",
+	"name": "nostril"
+}

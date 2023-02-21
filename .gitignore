@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/nostril
+nostril.so
+nostril.dylib
+nostril.dll
+nostril.a
+nostril.lib
+nostril-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
