@@ -2,14 +2,16 @@ import std.stdio;
 
 import vibe.vibe;
 import std.json;
-import dlog : DefaultLogger, DLogger = Logger;
+
+import gogga;
 
 // TODO: Investigate if we need the belowe (I copied it from Birchwood)
-__gshared DLogger logger;
+__gshared GoggaLogger logger;
 __gshared static this()
 {
-    logger = new DefaultLogger();
+    logger = new GoggaLogger();
 }
+
 
 /** 
  * Handles an incoming websocket connection
