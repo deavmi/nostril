@@ -35,11 +35,11 @@ public class Server
 
   
 
-    this(string[] bindAddresses, int bindPort)
+    this(string[] bindAddresses, ushort bindPort)
     {
         // Setup where to listen
         this.httpSettings = new HTTPServerSettings();
-	    httpSettings.port = 8082;
+	    httpSettings.port = bindPort;
         httpSettings.bindAddresses = bindAddresses;
 
         // Setup a websocket negotiater with a handler attached
@@ -78,7 +78,14 @@ public class Server
     */
     void websocketHandler(scope WebSocket socket)
     {
-        new Connection(socket).call();
+        /* Create a new connection to handle this client */
+        Connection connection = new Connection(socket);
+
+        /* Add it to the queue */
+        // TODO: Add this
+
+        /* Call the fiber and let it start */
+        connection.call();
     }
 
 

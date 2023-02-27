@@ -20,7 +20,7 @@ import nostril.server;
 void main()
 {
     string[] bindAddresseds = ["::"];
-    int bindPort = 8082;
+    ushort bindPort = 8082;
 	Server server = new Server(bindAddresseds, bindPort);
     server.startServer();
 }
