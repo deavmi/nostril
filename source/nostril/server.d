@@ -11,18 +11,22 @@ __gshared static this()
 
 import core.thread : Thread;
 
+import std.json;
 import vibe.vibe : URLRouter, HTTPServerSettings;
 import vibe.vibe : WebSocket, handleWebSockets;
 
 import vibe.vibe;
 
-import nostril.connection;
+import vibe.vibe : WebSocket, WebSocketException;
+import core.thread.fiber : Fiber;
 
 /** 
  * Server
  *
- * A thread which manages all of the vibe.d fibers
+ * A BRUHTODO which manages all of the vibe.d fibers
  * for running a server which accepts client connections
+ *
+ * TODO: Make this a thread (so seperate FIberSchedulr associated with it I would hope)
  */
 public class Server
 {
@@ -33,8 +37,18 @@ public class Server
     private URLRouter router;
     private @safe void delegate(scope HTTPServerRequest, HTTPServerResponse) websocketNegotiater;
 
+    /**
+     * Connection queue
+     */
+    private Connection[Connection] connections;
   
-
+    /** 
+     * TODO
+     *
+     * Params:
+     *   bindAddresses = 
+     *   bindPort = 
+     */
     this(string[] bindAddresses, ushort bindPort)
     {
         // Setup where to listen
@@ -50,6 +64,9 @@ public class Server
 	    router.get("/", this.websocketNegotiater);
     }
 
+    /** 
+     * TODO
+     */
     public void startServer()
     {
         // Bind the router to the server
@@ -79,17 +96,128 @@ public class Server
     void websocketHandler(scope WebSocket socket)
     {
         /* Create a new connection to handle this client */
-        Connection connection = new Connection(socket);
-
-        /* Add it to the queue */
-        // TODO: Add this
+        Connection connection = new Connection(this, socket);
 
         /* Call the fiber and let it start */
         connection.call();
     }
 
 
+    /** 
+     * Adds the given Connection to the connection queue
+     * even if it already exists in it (it won't duplicate)
+     *
+     * Params:
+     *   newConnection = the connection to add
+     */
+    public final void addConnection(Connection newConnection)
+    {
+        connections[newConnection] = newConnection;
+    }
+
+    public final void delConnection(Connection existingConnection)
+    {
+        connections.remove(existingConnection);
+    }
+
+
    
+}
+
+
+// TODO: This won't work with Thread, must be a fiber
+// ... because of how vibe.d works
+public class Connection : Fiber
+{
+    /* Client socket */
+    private WebSocket socket;
+
+    /* Request information */
+    private HTTPServerRequest httpRequest;
+
+    /* The server instance associated with */
+    private Server server;
+
+    this(Server server, WebSocket ws)
+    {
+        super(&worker);
+        this.server = server;
+
+        this.socket = ws;
+        this.httpRequest = cast(HTTPServerRequest)socket.request();
+    }
+
+    private void worker()
+    {
+        /* Add it to the queue */
+        server.addConnection(this);
+
+        logger.print("Handling web socket: "~to!(string)(socket)~"\n",DebugType.INFO);
+        
+        
+        logger.print("New connection from: "~to!(string)(httpRequest.peer)~"\n",DebugType.INFO);
+        
+
+        while(socket.waitForData())
+        {
+            string data;
+
+            try
+            {
+                import std.stdio;
+                writeln("Ha");
+
+                data = socket.receiveText();
+                writeln("Hello receve done");
+            }
+            catch(WebSocketException e)
+            {
+                logger.print("Error in receive text\n", DebugType.ERROR);
+            }
+
+            try
+            {
+                handler(data);
+            }
+            catch(Exception e)
+            {
+                logger.print("Error in handler\n", DebugType.ERROR);
+            }
+            
+        }
+
+        /* Remove it from the queue */
+        server.delConnection(this);
+
+        logger.print("Web socket connection closing...\n", DebugType.WARNING);
+    }
+
+    /** 
+    * Handles received data
+    *
+    * Params:
+    *    text = received data 
+    */
+    private void handler(string text)
+    {
+        string receivedText = text;
+        logger.print(receivedText~"\n", DebugType.INFO);
+
+
+        JSONValue jsonReceived;
+        try
+        {
+            jsonReceived = parseJSON(receivedText);
+            logger.print(jsonReceived.toPrettyString()~"\n", DebugType.INFO);
+
+            // TODO: Add handling here
+
+        }
+        catch(JSONException e)
+        {
+            logger.print("There was an error parsing the client's JSON\n", DebugType.ERROR);
+        }
+    }
 }
 
 /** 
