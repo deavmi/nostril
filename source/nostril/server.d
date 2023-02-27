@@ -76,17 +76,6 @@ public class Server
 
         runApplication();
     }
-
-
-    public static Server createServer()
-    {
-        Server newServer;
-
-
-
-        return newServer;
-    }
-
     /** 
     * Handles an incoming websocket connection
     *
