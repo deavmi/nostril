@@ -29,17 +29,21 @@ public class Connection : Fiber
     /* Client socket */
     private WebSocket socket;
 
+    /* Request information */
+    private HTTPServerRequest httpRequest;
+
     this(WebSocket ws)
     {
         super(&worker);
         this.socket = ws;
+        this.httpRequest = cast(HTTPServerRequest)socket.request();
     }
 
     private void worker()
     {
         logger.print("Handling web socket: "~to!(string)(socket)~"\n",DebugType.INFO);
         
-        HTTPServerRequest httpRequest = cast(HTTPServerRequest)socket.request();
+        
         logger.print("New connection from: "~to!(string)(httpRequest.peer)~"\n",DebugType.INFO);
 
         
