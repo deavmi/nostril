@@ -43,11 +43,12 @@ public class Server
     private Connection[Connection] connections;
   
     /** 
-     * TODO
+     * Constructs a new server listening on the given
+     * network parameters
      *
      * Params:
-     *   bindAddresses = 
-     *   bindPort = 
+     *   bindAddresses = list of addresses to bind to
+     *   bindPort = port to bind to
      */
     this(string[] bindAddresses, ushort bindPort)
     {
@@ -104,13 +105,16 @@ public class Server
         connections[newConnection] = newConnection;
     }
 
+    /** 
+     * Removes the provided connection from the connection queue
+     *
+     * Params:
+     *   existingConnection = the connection to remove
+     */
     public final void delConnection(Connection existingConnection)
     {
         connections.remove(existingConnection);
     }
-
-
-   
 }
 
 
