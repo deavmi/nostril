@@ -1,20 +1,8 @@
 module nostril.app;
 
-import std.stdio;
+import  nostril.logging : LoggerSetup;
 
-import vibe.vibe;
-import vibe.http.dist;
-import std.json;
-
-import gogga;
-
-// TODO: Investigate if we need the belowe (I copied it from Birchwood)
-__gshared GoggaLogger logger;
-__gshared static this()
-{
-    logger = new GoggaLogger();
-}
-
+mixin LoggerSetup!();
 import nostril.server;
 
 void main()

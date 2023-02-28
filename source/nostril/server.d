@@ -1,13 +1,14 @@
 module nostril.server;
 
+import  nostril.logging;
+
+
+/** 
+ * FIXME: Fix the below so I need not import gogga too
+ */
+mixin LoggerSetup!();
 import gogga;
 
-// TODO: Investigate if we need the belowe (I copied it from Birchwood)
-__gshared GoggaLogger logger;
-__gshared static this()
-{
-    logger = new GoggaLogger();
-}
 
 import core.thread : Thread;
 
@@ -102,7 +103,9 @@ public class Server
      */
     public final void addConnection(Connection newConnection)
     {
+        logger.dbg("Adding connection '"~newConnection.toString()~"'...\n", DebugType.WARNING);
         connections[newConnection] = newConnection;
+        logger.dbg("Adding connection '"~newConnection.toString()~"'... [done]\n", DebugType.WARNING);
     }
 
     /** 
@@ -113,7 +116,9 @@ public class Server
      */
     public final void delConnection(Connection existingConnection)
     {
+        logger.dbg("Removing connection '"~existingConnection.toString()~"'...\n", DebugType.WARNING);
         connections.remove(existingConnection);
+        logger.dbg("Removing connection '"~existingConnection.toString()~"'... [done]\n", DebugType.WARNING);
     }
 }
 
