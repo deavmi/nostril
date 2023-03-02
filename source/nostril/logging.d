@@ -1,11 +1,12 @@
 module nostril.logging;
 
+import gogga;
+
 // NOTE: If we include threads then use `__gshared` so we have
 // ... one logger for the whole threadgroup and not a per-TLS
 // ... (per-thread) logger (as we do below)
 private mixin template LoggerSetup()
 {
-    import gogga;
     GoggaLogger logger;
     static this()
     {
@@ -15,6 +16,8 @@ private mixin template LoggerSetup()
         {
             logger.enableDebug();
         }
+
+        logger.mode(GoggaMode.TwoKTwenty3);
     }
 }
 
