@@ -1,13 +1,7 @@
 module nostril.server;
 
+import nostril.storage : BackingStore;
 import  nostril.logging;
-
-
-/** 
- * FIXME: Fix the below so I need not import gogga too
- */
-mixin LoggerSetup!();
-import gogga;
 
 
 import core.thread : Thread;
@@ -42,6 +36,11 @@ public class Server
      * Connection queue
      */
     private Connection[Connection] connections;
+
+    /**
+     * Backend storage
+     */
+    private BackingStore store;
   
     /** 
      * Constructs a new server listening on the given
@@ -103,9 +102,9 @@ public class Server
      */
     public final void addConnection(Connection newConnection)
     {
-        logger.dbg("Adding connection '"~newConnection.toString()~"'...\n", DebugType.WARNING);
+        logger.dbg("Adding connection '"~newConnection.toString()~"'...");
         connections[newConnection] = newConnection;
-        logger.dbg("Adding connection '"~newConnection.toString()~"'... [done]\n", DebugType.WARNING);
+        logger.dbg("Adding connection '"~newConnection.toString()~"'... [done]");
     }
 
     /** 
@@ -116,9 +115,9 @@ public class Server
      */
     public final void delConnection(Connection existingConnection)
     {
-        logger.dbg("Removing connection '"~existingConnection.toString()~"'...\n", DebugType.WARNING);
+        logger.dbg("Removing connection '"~existingConnection.toString()~"'...");
         connections.remove(existingConnection);
-        logger.dbg("Removing connection '"~existingConnection.toString()~"'... [done]\n", DebugType.WARNING);
+        logger.dbg("Removing connection '"~existingConnection.toString()~"'... [done]");
     }
 }
 
@@ -150,12 +149,14 @@ public class Connection : Fiber
         /* Add it to the queue */
         server.addConnection(this);
 
-        logger.print("Handling web socket: "~to!(string)(socket)~"\n",DebugType.INFO);
+        logger.info("Handling web socket: "~to!(string)(socket));
         
         
-        logger.print("New connection from: "~to!(string)(httpRequest.peer)~"\n",DebugType.INFO);
+        logger.info("New connection from: "~to!(string)(httpRequest.peer));
         
-
+        /**
+         * Loop whilst the connection is active
+         */
         while(socket.waitForData())
         {
             string data;
@@ -170,7 +171,7 @@ public class Connection : Fiber
             }
             catch(WebSocketException e)
             {
-                logger.print("Error in receive text\n", DebugType.ERROR);
+                logger.error("Error in receive text");
             }
 
             try
@@ -179,15 +180,17 @@ public class Connection : Fiber
             }
             catch(Exception e)
             {
-                logger.print("Error in handler\n", DebugType.ERROR);
+                logger.error("Error in handler");
             }
             
+            logger.info("Loop end");
+            // TODO: Bruv yield it would seem
         }
 
         /* Remove it from the queue */
         server.delConnection(this);
 
-        logger.print("Web socket connection closing...\n", DebugType.WARNING);
+        logger.warn("Web socket connection closing...");
     }
 
     /** 
@@ -199,33 +202,21 @@ public class Connection : Fiber
     private void handler(string text)
     {
         string receivedText = text;
-        logger.print(receivedText~"\n", DebugType.INFO);
+        logger.info(receivedText);
 
 
         JSONValue jsonReceived;
         try
         {
             jsonReceived = parseJSON(receivedText);
-            logger.print(jsonReceived.toPrettyString()~"\n", DebugType.INFO);
+            logger.info("Received data:\n\n"~jsonReceived.toPrettyString());
 
             // TODO: Add handling here
 
         }
         catch(JSONException e)
         {
-            logger.print("There was an error parsing the client's JSON\n", DebugType.ERROR);
+            logger.error("There was an error parsing the client's JSON");
         }
     }
-}
-
-/** 
- * BackingStore
- *
- * Represents the backing storage where
- * events are to be read from and written
- * to
- */
-public abstract class BackingStore
-{
-    // TODO: Add a queue here
 }

@@ -1,8 +1,6 @@
 module nostril.app;
 
-import  nostril.logging : LoggerSetup;
-
-mixin LoggerSetup!();
+import  nostril.logging;
 import nostril.server;
 
 void main()
