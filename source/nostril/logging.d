@@ -17,7 +17,7 @@ private mixin template LoggerSetup()
             logger.enableDebug();
         }
 
-        logger.mode(GoggaMode.TwoKTwenty3);
+        logger.mode(GoggaMode.RUSTACEAN);
     }
 }
 
