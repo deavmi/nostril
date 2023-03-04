@@ -65,11 +65,6 @@ public class Server
 	    router.get("/", this.websocketNegotiater);
     }
 
-    private void tcpHandler(TCPConnection tcpClient)
-    {
-
-    }
-
     /** 
      * TODO: We need to find a way to hook pre-accept and to not hang on accept either
      */
