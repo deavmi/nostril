@@ -172,38 +172,33 @@ public class Connection : Fiber
          */
         while(socket.connected() && !hadError)
         {
-            /** 
-             * Check if there is data received and then process it
-             */
-            if(socket.dataAvailableForRead())
+            /* The received data */
+            string data;
+
+            try
             {
-                /* The received data */
-                string data;
-
-                try
-                {
-                    // TODO: We could juist cal, this (I presume - I must check)
-                    // ... that this is async I/O fiber vibe (then no need for yield() at end)
-                    data = socket.receiveText();
-                }
-                /* On connection error or format error */
-                catch(WebSocketException e)
-                {
-                    logger.error("Error in receive text");
-                    hadError = true;
-                    continue;
-                }
-
-
-                try
-                {
-                    handler(data);
-                }
-                catch(Exception e)
-                {
-                    logger.error("Error in handler");
-                }
+                // TODO: We could juist cal, this (I presume - I must check)
+                // ... that this is async I/O fiber vibe (then no need for yield() at end)
+                data = socket.receiveText();
             }
+            /* On connection error or format error */
+            catch(WebSocketException e)
+            {
+                logger.error("Error in receive text");
+                hadError = true;
+                continue;
+            }
+
+
+            try
+            {
+                handler(data);
+            }
+            catch(Exception e)
+            {
+                logger.error("Error in handler");
+            }
+    
             
 
             
