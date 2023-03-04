@@ -66,15 +66,14 @@ public class Server
     }
 
     /** 
-     * TODO
+     * TODO: We need to find a way to hook pre-accept and to not hang on accept either
      */
     public void startServer()
     {
         // Bind the router to the server
-        // TODO: Investigate multi-threaded listener rather
         listenHTTP(httpSettings, router);
-        // listenHTTPDist(httpSettings, toDelegate(&threadHandler), "[]::]", 8082);
 
+        // Start the event loop
         runApplication();
     }
     /** 
@@ -183,6 +182,8 @@ public class Connection : Fiber
 
                 try
                 {
+                    // TODO: We could juist cal, this (I presume - I must check)
+                    // ... that this is async I/O fiber vibe (then no need for yield() at end)
                     data = socket.receiveText();
                 }
                 /* On connection error or format error */
