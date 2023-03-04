@@ -71,26 +71,14 @@ public class Server
     }
 
     /** 
-     * TODO
+     * TODO: We need to find a way to hook pre-accept and to not hang on accept either
      */
     public void startServer()
     {
-        import eventcore.socket;
-        import std.socket;
-        // StreamListenSocket servSock = listenStream(parseAddress("[::]", 8082));
-
-
-        // TCPListenOptions d;
-
-        // TCPListener serverSocket = listenTCP(httpSettings.port, &tcpHandler, httpSettings.bindAddresses[0]);
-
-
-
         // Bind the router to the server
-        // TODO: Investigate multi-threaded listener rather
         listenHTTP(httpSettings, router);
-        // listenHTTPDist(httpSettings, toDelegate(&threadHandler), "[]::]", 8082);
 
+        // Start the event loop
         runApplication();
     }
     /** 
