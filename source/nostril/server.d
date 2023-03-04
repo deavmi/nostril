@@ -1,7 +1,7 @@
 module nostril.server;
 
 import nostril.storage : BackingStore;
-import  nostril.logging;
+import nostril.logging;
 
 
 import core.thread : Thread;
@@ -90,6 +90,16 @@ public class Server
 
         /* Call the fiber and let it start */
         connection.call();
+        logger.info("Fiber has paused for ", connection);
+
+        /* Call to scheduler to wake up all other fibers */
+        foreach(Connection curConnection; connections)
+        {
+            /* Resume this fiber */
+            logger.warn("Resuming fiber ", curConnection);
+            curConnection.call();
+            logger.warn("Resuming fiber ", curConnection, " is yielded back to us");
+        }
     }
 
 
@@ -154,37 +164,53 @@ public class Connection : Fiber
         
         logger.info("New connection from: "~to!(string)(httpRequest.peer));
         
+        bool hadError = false;
+
         /**
          * Loop whilst the connection is active
+         * and we have not had a WebSocket exception
+         * thrown
          */
-        while(socket.waitForData())
+        while(socket.connected() && !hadError)
         {
-            string data;
+            /** 
+             * Check if there is data received and then process it
+             */
+            if(socket.dataAvailableForRead())
+            {
+                /* The received data */
+                string data;
 
-            try
-            {
-                import std.stdio;
-                writeln("Ha");
+                try
+                {
+                    data = socket.receiveText();
+                }
+                /* On connection error or format error */
+                catch(WebSocketException e)
+                {
+                    logger.error("Error in receive text");
+                    hadError = true;
+                    continue;
+                }
 
-                data = socket.receiveText();
-                writeln("Hello receve done");
-            }
-            catch(WebSocketException e)
-            {
-                logger.error("Error in receive text");
-            }
 
-            try
-            {
-                handler(data);
-            }
-            catch(Exception e)
-            {
-                logger.error("Error in handler");
+                try
+                {
+                    handler(data);
+                }
+                catch(Exception e)
+                {
+                    logger.error("Error in handler");
+                }
             }
             
-            logger.info("Loop end");
-            // TODO: Bruv yield it would seem
+
+            
+            /**
+             * Now yield this fiber so others may process
+             */
+            logger.info("Loop end, yieling");
+            this.yield();
         }
 
         /* Remove it from the queue */
@@ -218,5 +244,18 @@ public class Connection : Fiber
         {
             logger.error("There was an error parsing the client's JSON");
         }
+    }
+
+
+    /** 
+     * Overrides the toString() method to provide information
+     * about this conenction's source IP:port but also the fiber
+     * ID
+     *
+     * Returns: the string representation of this connection
+     */
+    public override string toString()
+    {
+        return to!(string)(httpRequest.peer);
     }
 }
