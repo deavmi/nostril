@@ -6,7 +6,7 @@
 
 <h1 align="center">nostril</h1>
 
-<h3 align="center"><i><b>A nostr relay written in DLang</i></b></h3>
+<h3 align="center"><i><b>A lightweight fiber-based nostr relay written in D</i></b></h3>
 
 ---
 
