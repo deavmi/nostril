@@ -1,7 +1,7 @@
 module nostril.server;
 
 import nostril.storage : BackingStore;
-import nostril.logging;
+import  nostril.logging;
 
 
 import core.thread : Thread;
@@ -66,14 +66,15 @@ public class Server
     }
 
     /** 
-     * TODO: We need to find a way to hook pre-accept and to not hang on accept either
+     * TODO
      */
     public void startServer()
     {
         // Bind the router to the server
+        // TODO: Investigate multi-threaded listener rather
         listenHTTP(httpSettings, router);
+        // listenHTTPDist(httpSettings, toDelegate(&threadHandler), "[]::]", 8082);
 
-        // Start the event loop
         runApplication();
     }
     /** 
@@ -89,16 +90,6 @@ public class Server
 
         /* Call the fiber and let it start */
         connection.call();
-        logger.info("Fiber has paused for ", connection);
-
-        /* Call to scheduler to wake up all other fibers */
-        foreach(Connection curConnection; connections)
-        {
-            /* Resume this fiber */
-            logger.warn("Resuming fiber ", curConnection);
-            curConnection.call();
-            logger.warn("Resuming fiber ", curConnection, " is yielded back to us");
-        }
     }
 
 
@@ -163,32 +154,25 @@ public class Connection : Fiber
         
         logger.info("New connection from: "~to!(string)(httpRequest.peer));
         
-        bool hadError = false;
-
         /**
          * Loop whilst the connection is active
-         * and we have not had a WebSocket exception
-         * thrown
          */
-        while(socket.connected() && !hadError)
+        while(socket.waitForData())
         {
-            /* The received data */
             string data;
 
             try
             {
-                // TODO: We could juist cal, this (I presume - I must check)
-                // ... that this is async I/O fiber vibe (then no need for yield() at end)
+                import std.stdio;
+                writeln("Ha");
+
                 data = socket.receiveText();
+                writeln("Hello receve done");
             }
-            /* On connection error or format error */
             catch(WebSocketException e)
             {
                 logger.error("Error in receive text");
-                hadError = true;
-                continue;
             }
-
 
             try
             {
@@ -198,15 +182,9 @@ public class Connection : Fiber
             {
                 logger.error("Error in handler");
             }
-    
             
-
-            
-            /**
-             * Now yield this fiber so others may process
-             */
-            logger.info("Loop end, yieling");
-            this.yield();
+            logger.info("Loop end");
+            // TODO: Bruv yield it would seem
         }
 
         /* Remove it from the queue */
@@ -240,18 +218,5 @@ public class Connection : Fiber
         {
             logger.error("There was an error parsing the client's JSON");
         }
-    }
-
-
-    /** 
-     * Overrides the toString() method to provide information
-     * about this conenction's source IP:port but also the fiber
-     * ID
-     *
-     * Returns: the string representation of this connection
-     */
-    public override string toString()
-    {
-        return to!(string)(httpRequest.peer);
     }
 }

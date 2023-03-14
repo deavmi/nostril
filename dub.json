@@ -4,10 +4,10 @@
 	],
 	"copyright": "Copyright © 2023, Tristan B. Velloza Kildaire",
 	"dependencies": {
-		"gogga": "2.1.16",
+		"gogga": "2.1.6",
 		"vibe-d": "0.9.6-beta.1"
 	},
-	"description": "A lightweight fiber-based nostr relay written in D",
-	"license": "AGPL v3",
+	"description": "A minimal D application.",
+	"license": "proprietary",
 	"name": "nostril"
 }
