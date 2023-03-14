@@ -4,8 +4,8 @@
 	],
 	"copyright": "Copyright © 2023, Tristan B. Velloza Kildaire",
 	"dependencies": {
-		"gogga": "2.1.6",
-		"vibe-d": "0.9.6-beta.1"
+		"gogga": "2.1.18",
+		"vibe-d": "0.9.6-beta.2"
 	},
 	"description": "A minimal D application.",
 	"license": "proprietary",
